@@ -60,12 +60,15 @@ const questionElement = document.getElementById("questions");
 const optionElement = document.getElementById("Options");
 const progressElement = document.getElementById("progress");
 const nextElement = document.getElementById("next-btn");
+const prevElement = document.getElementById("prev-btn");
+const restartElement = document.getElementById("restart-btn");
 
 // state management- to track: currentQuestion, currentScore and selectedOption
 
 let currentQuestionIndex = 0;
 let currentScore = 0;
 let selectedOption = null;
+let userAnswers = new Array(Quiz.length).fill(null);
 
 // Start quiz
 
@@ -84,33 +87,63 @@ function displayQuestion(){
 
   optionElement.innerHTML = ""; 
 
-  currentQuestion.Options.forEach((option, index) => {
-    const button = document.createElement("button");
+ currentQuestion.Options.forEach((option, index) => {
+  const button = document.createElement("button");
 
-    const letters = ["A","B","C","D"];
+  const letters = ["A","B","C","D"];
 
-    button.textContent = `${letters[index]}. ${option}`;
+  button.textContent = `${letters[index]}. ${option}`;
 
-    button.addEventListener("click", () => {
-    selectedOption = option;
-   });
+  button.addEventListener("click", () => {
+    selectAnswer(button, option);
+  });
 
-   
+  // Restore previously selected answer
+  if (userAnswers[currentQuestionIndex] === option) {
+    button.classList.add("selected");
+    nextElement.disabled = false;
+  }
 
-   optionElement.appendChild(button);
+  optionElement.appendChild(button);
  });
+ 
 
+    if (currentQuestionIndex === 0) {
+
+      prevElement.disabled = true;
+
+      nextElement.disabled = true;
+
+    } else {
+
+      prevElement.disabled = false;
+
+    }
+   
+    
 };
+
+function selectAnswer(button, option) {
+
+  selectedOption = option;
+
+  // Save answer for this question
+  userAnswers[currentQuestionIndex] = option;
+
+  const allButtons = document.querySelectorAll("#Options button");
+
+  allButtons.forEach(btn => {
+    btn.classList.remove("selected");
+  });
+
+  button.classList.add("selected");
+
+  nextElement.disabled = false;
+
+}
 
 // Select answer and next
 function showNextQuestion() {
-  const currentQuestion = Quiz[currentQuestionIndex];
-
-  if (selectedOption === currentQuestion.answer) {
-    currentScore++;
-  }
-
-  selectedOption = null; 
 
   currentQuestionIndex++;
 
@@ -118,9 +151,49 @@ function showNextQuestion() {
     displayQuestion();
   } else {
 
+    calculateScore();
     showResults();
+
   }
 }
+
+function calculateScore() {
+
+  currentScore = 0;
+
+  Quiz.forEach((question, index) => {
+
+    if (userAnswers[index] === question.answer) {
+      currentScore++;
+    }
+
+  });
+
+}
+
+function showPreviousQuestion() {
+
+  if (currentQuestionIndex > 0) {
+
+    currentQuestionIndex--;
+
+    displayQuestion();
+
+  }
+
+}
+
+restartElement.addEventListener("click", () => {
+
+  currentQuestionIndex = 0;
+  currentScore = 0;
+
+  nextElement.style.display = "block";
+  restartElement.style.display = "none";
+
+  displayQuestion();
+
+});
 
 const showResults = () => {
   questionElement.textContent = "Quiz Completed!";
@@ -129,10 +202,17 @@ const showResults = () => {
   progressElement.textContent = `Your score: ${currentScore} out of ${Quiz.length}`;
   
 
-  nextBtn.style.display = "none";
+  prevElement.disabled = true;
+
+  nextElement.style.display = "none";
+
+  restartElement.style.display = "block";
+
 };
 
 nextElement.addEventListener("click", showNextQuestion);
+
+prevElement.addEventListener("click",showPreviousQuestion);
 
 displayQuestion();
 
