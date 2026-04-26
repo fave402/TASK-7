@@ -1,220 +1,170 @@
-// This section builds an understanding of Array and nested Array 
+// This section builds an understanding of Array and nested Array
 
 const Quiz = [
     {
+
       question: "What is the Capital of China?",
-      Options: ["Toyko", "Hong-kong", "Beijing", "Chinatown"],
-      answer: "Beijing",
+      options: ["Tokyo", "Hong Kong", "Beijing", "Chinatown"],
+      answer: "Beijing"
+
     },
     {
+
       question: "Which planet is known as the Red Planet?",
-      Options: ["Earth", "Mars", "Venus", "Jupiter"],
-      answer: "Mars",
+      options: ["Earth", "Mars", "Venus", "Jupiter"],
+      answer: "Mars"
+
     },
     {
+
       question: "Which ocean is the largest?",
-      Options: ["Atlantic Ocean", "Indiana Ocean", "Pacific Ocean", "Arctic Ocean"],
-      answer: "Pacific Ocean",
+      options: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"],
+      answer: "Pacific Ocean"
+
     },
     {
+
       question: "What color do you get when you mix red and white?",
-      Options: ["Pink", "Yellow", "Purple", "Orange"],
-      answer: "Pink",
+      options: ["Pink", "Yellow", "Purple", "Orange"],
+      answer: "Pink"
+
     },
     {
-      question: "Carrot was Originally what color?",
-      Options: ["Yellow", "Orange", "Purple", "Green"],
-      answer: "Purple",
+
+      question: "Carrot was originally what color?",
+      options: ["Yellow", "Orange", "Purple", "Green"],
+      answer: "Purple"
+
     },
-    {
-      question: "What is the main language used to structure web pages?",
-      Options: ["CSS", "HTML", "JAVASCRIPT", "PYTHON"],
-      answer: "HTML",
-    },
-     {
-      question: "The Sun is a:",
-      Options: ["Planet", "Star", "Moon", "Asteroid"],
-      answer: "Star",
-    },
-    {
-      question: "What planet is the third from the Sun?",
-      Options: ["Venus", "Earth", "Mars", "Mercury"],
-      answer: "Earth",
-    },
-    {
-      question: "Which method is used to select an element by its ID in JavaScript?",
-      Options: ["document.querySelectorAll()", "document.getElementById()", "document.getElementsByClassName()", "document.getElementByTagName()"],
-      answer: "document.getElementById()",
-    },
-    {
-      question: "What does document.querySelector() return?",
-      Options: ["All matching elements", "The last matching element", "The first matching element", "Nothing"],
-      answer: "The first matching element",
-    },
-   
+
 ];
 
-// This section focues on the ways of selecting elements [looking at the most common-By Id using{getElementById method} to call all the Ids indicated in the Html section]
 
-const questionElement = document.getElementById("questions");
-const optionElement = document.getElementById("Options");
+// this section declares all Ids on the html 
+
+const questionElement = document.getElementById("question");
+const optionsElement = document.getElementById("options");
 const progressElement = document.getElementById("progress");
-const nextElement = document.getElementById("next-btn");
-const prevElement = document.getElementById("prev-btn");
-const restartElement = document.getElementById("restart-btn");
+const progressFill = document.getElementById("progress-fill");
+const nextBtn = document.getElementById("next-btn");
+const prevBtn = document.getElementById("prev-btn");
+const restartBtn = document.getElementById("restart-btn");
 
-// state management- to track: currentQuestion, currentScore and selectedOption
+// State management- to track: currentQuestion, currenrScore and selecdtedOption(answers)
 
 let currentQuestionIndex = 0;
 let currentScore = 0;
-let selectedOption = null;
-let userAnswers = new Array(Quiz.length).fill(null);
+let answers = new Array(Quiz.length).fill(null);
 
-// Start quiz
+// display the questions and options //
 
-function startQuiz(){
-  currentQuestionIndex = 0;
-  currentScore = 0;
-  displayQuestion();
-}
+function displayQuestion() {
+  const current = Quiz[currentQuestionIndex];
 
-// display the questions and options
+  questionElement.textContent = current.question;
+  progressElement.textContent = `Question ${currentQuestionIndex + 1} of ${Quiz.length}`;
 
-function displayQuestion(){
-  const currentQuestion =  Quiz[currentQuestionIndex];
-  progressElement.textContent = `Question ${currentQuestionIndex + 1} out of ${Quiz.length}`;
-  questionElement.textContent = currentQuestion.question;
+  updateProgressBar();
 
-  optionElement.innerHTML = ""; 
+  optionsElement.innerHTML = "";
 
- currentQuestion.Options.forEach((option, index) => {
-  const button = document.createElement("button");
 
-  const letters = ["A","B","C","D"];
+  current.options.forEach(function(opt, index) {
+    const button = document.createElement("button");
 
-  button.textContent = `${letters[index]}. ${option}`;
+    const letters = ["A", "B", "C", "D"];
 
-  button.addEventListener("click", () => {
-    selectAnswer(button, option);
+    button.textContent = `${letters[index]}. ${opt}`;
+
+
+
+    if (answers[currentQuestionIndex] === opt) {
+      button.classList.add("selected");
+      nextBtn.disabled = false;
+    }
+
+    button.onclick = () => selectAnswer(button, opt);
+
+    optionsElement.appendChild(button);
+
+
   });
 
-  // Restore previously selected answer
-  if (userAnswers[currentQuestionIndex] === option) {
-    button.classList.add("selected");
-    nextElement.disabled = false;
-  }
+ prevBtn.disabled = currentQuestionIndex === 0;
+}
 
-  optionElement.appendChild(button);
- });
- 
-
-    if (currentQuestionIndex === 0) {
-
-      prevElement.disabled = true;
-
-      nextElement.disabled = true;
-
-    } else {
-
-      prevElement.disabled = false;
-
-    }
-   
-    
-};
+// Select answer 
 
 function selectAnswer(button, option) {
+  answers[currentQuestionIndex] = option;
 
-  selectedOption = option;
+  const buttons = optionsElement.querySelectorAll("button");
 
-  // Save answer for this question
-  userAnswers[currentQuestionIndex] = option;
-
-  const allButtons = document.querySelectorAll("#Options button");
-
-  allButtons.forEach(btn => {
-    btn.classList.remove("selected");
-  });
+  buttons.forEach(btn => btn.classList.remove("selected"));
 
   button.classList.add("selected");
-
-  nextElement.disabled = false;
-
+  nextBtn.disabled = false;
 }
 
-// Select answer and next
-function showNextQuestion() {
-
+// Next button control 
+nextBtn.onclick = () => {
+  if (currentQuestionIndex < Quiz.length - 1) {
   currentQuestionIndex++;
-
-  if (currentQuestionIndex < Quiz.length) {
-    displayQuestion();
+  displayQuestion();
   } else {
-
-    calculateScore();
-    showResults();
-
+  showResult();
   }
+};
+
+// Previous button control 
+prevBtn.onclick = () => {
+  if (currentQuestionIndex > 0) {
+  currentQuestionIndex--;
+  displayQuestion();
+  }
+};
+
+// Progress bar control 
+function updateProgressBar() {
+  const percent = ((currentQuestionIndex + 1) / Quiz.length) * 100;
+  progressFill.style.width = percent + "%";
+
 }
 
-function calculateScore() {
-
+// showResult 
+function showResult() {
   currentScore = 0;
 
   Quiz.forEach((question, index) => {
-
-    if (userAnswers[index] === question.answer) {
-      currentScore++;
-    }
-
+  if (answers[index] === question.answer) currentScore++;
   });
 
+  questionElement.textContent = "Quiz Completed!";
+  optionsElement.innerHTML = "";
+  progressElement.textContent = `Your Score: ${currentScore} / ${Quiz.length}`;
+
+  nextBtn.style.display = "none";
+  prevBtn.style.display = "none";
+  restartBtn.style.display = "block";
 }
 
-function showPreviousQuestion() {
-
-  if (currentQuestionIndex > 0) {
-
-    currentQuestionIndex--;
-
-    displayQuestion();
-
-  }
-
-}
-
-restartElement.addEventListener("click", () => {
-
+// Restart 
+restartBtn.onclick = () => {
   currentQuestionIndex = 0;
   currentScore = 0;
+  answers = new Array(Quiz.length).fill(null);
 
-  nextElement.style.display = "block";
-  restartElement.style.display = "none";
+  nextBtn.style.display = "inline-block";
+  prevBtn.style.display = "inline-block";
+  restartBtn.style.display = "none";
+
+  nextBtn.disabled = true;
 
   displayQuestion();
-
-});
-
-const showResults = () => {
-  questionElement.textContent = "Quiz Completed!";
-  optionElement.innerHTML = "";
-
-  progressElement.textContent = `Your score: ${currentScore} out of ${Quiz.length}`;
-  
-
-  prevElement.disabled = true;
-
-  nextElement.style.display = "none";
-
-  restartElement.style.display = "block";
-
 };
 
-nextElement.addEventListener("click", showNextQuestion);
-
-prevElement.addEventListener("click",showPreviousQuestion);
-
 displayQuestion();
+
 
 
 

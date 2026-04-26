@@ -1,43 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">  
+    <title>QUIZ APP</title>
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="quiz-box">
+        <h1>Quiz App</h1>
+
+        <div 
+          id="progress">
+        </div>
   
-  <title>QUIZ APP</title>
-</head>
-<body>
+        <div class="progress-bar">
+        <div id="progress-fill"></div>
+        </div>
 
-  <div class="box">
-    <h1>QUIZ</h1>
+        <h2 id="question"></h2>
 
-    <div class="quiz-box">
-      <h2 id="progress"></h2>
-      <p id="questions"></p>
+        <div id="options"></div>
 
-      <div id="Options">
-       
+        <div class="buttons">
+          <button id="prev-btn">PREVIOUS</button>
+          <button id="next-btn" disabled>NEXT</button>
+        </div>
+
+      <button id="restart-btn">Restart Quiz</button>
       </div>
-      
-      <button id="prev-btn">
-        PREVIOUS
-      </button>
-
-      <button id="next-btn">
-        NEXT
-      </button>
-
-      <button id="restart-btn">
-        Restart Quiz
-      </button>
 
     </div>
+
+    <script src="app.js"></script>
     
-
-  </div>
-
-  
-  <script src="app.js"></script>
-</body>
+  </body>
 </html>
